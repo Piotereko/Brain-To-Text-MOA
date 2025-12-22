@@ -366,7 +366,7 @@ class BrainToTextDecoder_Trainer:
         ''' 
         Load a training checkpoint
         '''
-        checkpoint = torch.load(load_path, weights_only = False) # checkpoint is just a dict
+        checkpoint = torch.load(load_path, weights_only = False, map_location=self.device) # checkpoint is just a dict
 
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
