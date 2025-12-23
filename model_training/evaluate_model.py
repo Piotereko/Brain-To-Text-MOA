@@ -177,6 +177,9 @@ lm_results = {
     'session': [],
     'block': [],
     'trial': [],
+    'corpus': [],
+    'true_phonemes': [],
+    'pred_phonemes': [],
     'true_sentence': [],
     'pred_sentence': [],
 }
@@ -226,10 +229,19 @@ with tqdm(total=total_test_trials, desc='Running remote language model', unit='t
             lm_results['session'].append(session)
             lm_results['block'].append(test_data[session]['block_num'][trial])
             lm_results['trial'].append(test_data[session]['trial_num'][trial])
+            lm_results['corpus'].append(test_data[session]['corpus'][trial])
+            
+            # store phonemes
+            lm_results['pred_phonemes'].append(" ".join(test_data[session]['pred_seq'][trial]))
             if eval_type == 'val':
+                true_seq = test_data[session]['seq_class_ids'][trial][0:test_data[session]['seq_len'][trial]]
+                true_seq = [LOGIT_TO_PHONEME[p] for p in true_seq]
+                lm_results['true_phonemes'].append(" ".join(true_seq))
                 lm_results['true_sentence'].append(test_data[session]['sentence_label'][trial])
             else:
+                lm_results['true_phonemes'].append(None)
                 lm_results['true_sentence'].append(None)
+                
             lm_results['pred_sentence'].append(best_candidate_sentence)
 
             # update progress bar
@@ -256,7 +268,22 @@ if eval_type == 'val':
         lm_results['edit_distance'].append(ed)
         lm_results['num_words'].append(len(true_sentence.split()))
 
+        # calculate phoneme error rate (PER)
+        true_phonemes = lm_results['true_phonemes'][i].split()
+        pred_phonemes = lm_results['pred_phonemes'][i].split()
+        p_ed = editdistance.eval(true_phonemes, pred_phonemes)
+        
+        if 'p_edit_distance' not in lm_results:
+            lm_results['p_edit_distance'] = []
+            lm_results['num_phonemes'] = []
+            
+        lm_results['p_edit_distance'].append(p_ed)
+        lm_results['num_phonemes'].append(len(true_phonemes))
+
         print(f'{lm_results["session"][i]} - Block {lm_results["block"][i]}, Trial {lm_results["trial"][i]}')
+        print(f'True phonemes:       {lm_results["true_phonemes"][i]}')
+        print(f'Pred phonemes:       {lm_results["pred_phonemes"][i]}')
+        print(f'PER: {p_ed} / {len(true_phonemes)} = {100 * p_ed / max(1, len(true_phonemes)):.2f}%')
         print(f'True sentence:       {true_sentence}')
         print(f'Predicted sentence:  {pred_sentence}')
         print(f'WER: {ed} / {100 * len(true_sentence.split())} = {ed / len(true_sentence.split()):.2f}%')
@@ -268,7 +295,41 @@ if eval_type == 'val':
 
 
 # write predicted sentences to a csv file. put a timestamp in the filename (YYYYMMDD_HHMMSS)
-output_file = os.path.join(model_path, f'baseline_rnn_{eval_type}_predicted_sentences_{time.strftime("%Y%m%d_%H%M%S")}.csv')
+timestamp = time.strftime("%Y%m%d_%H%M%S")
+output_file = os.path.join(model_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
 ids = [i for i in range(len(lm_results['pred_sentence']))]
 df_out = pd.DataFrame({'id': ids, 'text': lm_results['pred_sentence']})
 df_out.to_csv(output_file, index=False)
+print(f'Saved submission file to {output_file}')
+
+# save detailed results to a separate csv file
+detailed_output_file = os.path.join(model_path, f'detailed_results_{eval_type}_{timestamp}.csv')
+df_detailed = pd.DataFrame(lm_results)
+df_detailed.to_csv(detailed_output_file, index=False)
+print(f'Saved detailed results to {detailed_output_file}')
+
+# if using the validation set, lets calculate WER per corpus and per session
+if eval_type == 'val':
+    print("\n--- Performance Summary by Session ---")
+    sessions = sorted(list(set(lm_results['session'])))
+    for s in sessions:
+        s_indices = [i for i, x in enumerate(lm_results['session']) if x == s]
+        s_ed = sum([lm_results['edit_distance'][i] for i in s_indices])
+        s_words = sum([lm_results['num_words'][i] for i in s_indices])
+        s_p_ed = sum([lm_results['p_edit_distance'][i] for i in s_indices])
+        s_phonemes = sum([lm_results['num_phonemes'][i] for i in s_indices])
+        print(f'Session {s}:')
+        print(f'  WER {100 * s_ed / max(1, s_words):.2f}% ({s_ed}/{s_words} words)')
+        print(f'  PER {100 * s_p_ed / max(1, s_phonemes):.2f}% ({s_p_ed}/{s_phonemes} phonemes)')
+
+    print("\n--- Performance Summary by Corpus ---")
+    corpora = sorted(list(set(lm_results['corpus'])))
+    for c in corpora:
+        c_indices = [i for i, x in enumerate(lm_results['corpus']) if x == c]
+        c_ed = sum([lm_results['edit_distance'][i] for i in c_indices])
+        c_words = sum([lm_results['num_words'][i] for i in c_indices])
+        c_p_ed = sum([lm_results['p_edit_distance'][i] for i in c_indices])
+        c_phonemes = sum([lm_results['num_phonemes'][i] for i in c_indices])
+        print(f'Corpus {c}:')
+        print(f'  WER {100 * c_ed / max(1, c_words):.2f}% ({c_ed}/{c_words} words)')
+        print(f'  PER {100 * c_p_ed / max(1, c_phonemes):.2f}% ({c_p_ed}/{c_phonemes} phonemes)')
