@@ -295,15 +295,21 @@ if eval_type == 'val':
 
 
 # write predicted sentences to a csv file. put a timestamp in the filename (YYYYMMDD_HHMMSS)
+# KASIA had to change the path so that it works on Kaggle server
 timestamp = time.strftime("%Y%m%d_%H%M%S")
-output_file = os.path.join(model_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
+#output_file = os.path.join(model_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
+output_path = "~" 
+output_file = os.path.join(output_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
+
 ids = [i for i in range(len(lm_results['pred_sentence']))]
 df_out = pd.DataFrame({'id': ids, 'text': lm_results['pred_sentence']})
 df_out.to_csv(output_file, index=False)
 print(f'Saved submission file to {output_file}')
 
 # save detailed results to a separate csv file
-detailed_output_file = os.path.join(model_path, f'detailed_results_{eval_type}_{timestamp}.csv')
+# KASIA had to change the path so that it works on Kaggle server
+#detailed_output_file = os.path.join(model_path, f'detailed_results_{eval_type}_{timestamp}.csv')
+detailed_output_file = os.path.join(output_path, f'detailed_results_{eval_type}_{timestamp}.csv')
 df_detailed = pd.DataFrame(lm_results)
 df_detailed.to_csv(detailed_output_file, index=False)
 print(f'Saved detailed results to {detailed_output_file}')
