@@ -1,6 +1,6 @@
 # ignore everything in this folder except a few things
-*
-!README.md
-!/.gitignore
-!t15_copyTaskData_description.csv
-!t15_pretrained_rnn_baseline/
+# *
+# !README.md
+# !/.gitignore
+# !t15_copyTaskData_description.csv
+# !t15_pretrained_rnn_baseline/
