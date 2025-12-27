@@ -84,10 +84,9 @@ dataset:
   seed: 1 # random seed for reproducibility
   num_dataloader_workers: 4 # number of workers for the data loader
   loader_shuffle: false # whether to shuffle the data loader
-  must_include_days: null # specific days to include in the dataset
+  must_include_days: [1] # specific days to include in the dataset
   test_percentage: 0.1 # percentage of data to use for testing
   feature_subset: null # specific features to include in the dataset
-  must_include_days: [1]
   dataset_dir: ../data/hdf5_data_final # directory containing the dataset
   bad_trials_dict: null # dictionary of bad trials to exclude from the dataset
   sessions: # list of sessions to include in the dataset
