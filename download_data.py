@@ -51,7 +51,7 @@ def main():
     DATA_DIR = "data/"
     data_dirpath = os.path.abspath(DATA_DIR)
     assert os.getcwd().endswith(
-        "nejm-brain-to-text"
+        "Brain-To-Text-MOA"
     ), f"Please run the download command from the nejm-brain-to-text directory (instead of {os.getcwd()})"
     assert os.path.exists(
         data_dirpath
