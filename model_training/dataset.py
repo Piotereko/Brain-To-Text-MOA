@@ -236,7 +236,6 @@ class BrainToTextDataset(Dataset):
                 batch_index[batch_idx] = batch
                 batch_idx += 1
 
-            print("Attempting batch", batch_idx, attempts)
 
         return batch_index
     

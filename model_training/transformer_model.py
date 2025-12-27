@@ -11,7 +11,7 @@ class BrainToTextTransformer(nn.Module):
         num_layers=4,
         dim_feedforward=1024,
         dropout=0.1,
-        max_len=2000,
+        max_len=10000
     ):
         super().__init__()
 
