@@ -9,3 +9,6 @@
 .DS_Store
 
 *.hdf5
+data/
+data/**
+hdf5_data_final/
