@@ -80,11 +80,11 @@ dataset:
   batch_size: 24 # batch size for training
   n_classes: 41 # number of classes (phonemes) in the dataset
   max_seq_elements: 128 # maximum number of sequence elements (phonemes) for any trial
-  days_per_batch: 2 # number of randomly-selected days to include in each batch
+  days_per_batch: 1 # number of randomly-selected days to include in each batch
   seed: 1 # random seed for reproducibility
   num_dataloader_workers: 4 # number of workers for the data loader
   loader_shuffle: false # whether to shuffle the data loader
-  must_include_days: [2] # specific days to include in the dataset
+  must_include_days: null # specific days to include in the dataset
   test_percentage: 0.1 # percentage of data to use for testing
   feature_subset: null # specific features to include in the dataset
   dataset_dir: ../data/hdf5_data_final # directory containing the dataset
