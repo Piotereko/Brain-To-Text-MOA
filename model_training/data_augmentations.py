@@ -41,7 +41,7 @@ def gauss_smooth(inputs, device, smooth_kernel_std=2, smooth_kernel_size=100,  p
 #Temporal Masking = Randomly hiding short chunks of the neural signal along the time axis during training.
 import torch
 
-def temporal_mask_gpu(x, max_mask_frac=0.15):
+def temporal_mask(x, max_mask_frac=0.15):
     """
     GPU temporal masking for batched input.
 
