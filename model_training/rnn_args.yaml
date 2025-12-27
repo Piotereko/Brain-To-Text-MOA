@@ -10,7 +10,7 @@ model:
   n_units: 768 # number of units per GRU layer
   rnn_dropout: 0.4 # dropout rate for the GRU layers
   rnn_trainable: true # whether the GRU layers are trainable
-  n_layers: 2 # number of GRU layers
+  n_layers: 5 # number of GRU layers
   patch_size: 1 # size of the input patches (14 time steps)
   patch_stride: 1 # stride for the input patches (4 time steps)
 
@@ -36,11 +36,11 @@ save_val_metrics: true # whether to save validation metrics during training
 early_stopping: false # whether to use early stopping based on validation metrics
 early_stopping_val_steps: 20 # number of validation steps to wait before stopping training if no improvement is seen
 
-num_training_batches: 100 # number of training batches to run
+num_training_batches: 1200 # number of training batches to run
 lr_scheduler_type: cosine # type of learning rate scheduler to use
 lr_max: 0.005 # maximum learning rate for the main model
 lr_min: 0.0001 # minimum learning rate for the main model
-lr_decay_steps: 120000 # number of steps for the learning rate decay
+lr_decay_steps: 12000 # number of steps for the learning rate decay
 lr_warmup_steps: 1000 # number of warmup steps for the learning rate scheduler
 lr_max_day: 0.005 # maximum learning rate for the day specific input layers
 lr_min_day: 0.0001 # minimum learning rate for the day specific input layers
@@ -55,7 +55,7 @@ weight_decay_day: 0 # weight decay for the day specific input layers
 seed: 10 # random seed for reproducibility
 grad_norm_clip_value: 10 # gradient norm clipping value
 
-batches_per_train_log: 1 # number of batches per training log
+batches_per_train_log: 10 # number of batches per training log
 batches_per_val_step: 500 # number of batches per validation step
 
 batches_per_save: 0 # number of batches per save
@@ -72,17 +72,17 @@ dataset:
     random_walk_axis: -1 # axis along which the random walk is applied
     static_gain_std: 0.0 # standard deviation of the static gain applied to the data
     random_cut: 3 # number of time steps to randomly cut from the beginning of each batch of trials
-    smooth_kernel_size: 25 # size of the smoothing kernel applied to the data was 500
-    smooth_data: false # whether to smooth the data was true
+    smooth_kernel_size: 100 # size of the smoothing kernel applied to the data was 500
+    smooth_data: true # whether to smooth the data was true
     smooth_kernel_std: 2 # standard deviation of the smoothing kernel applied to the data
 
   neural_dim: 512 # dimensionality of the neural data
   batch_size: 32 # batch size for training
   n_classes: 41 # number of classes (phonemes) in the dataset
   max_seq_elements: 128 # maximum number of sequence elements (phonemes) for any trial
-  days_per_batch: 1 # number of randomly-selected days to include in each batch
+  days_per_batch: 4 # number of randomly-selected days to include in each batch
   seed: 1 # random seed for reproducibility
-  num_dataloader_workers: 2 # number of workers for the data loader
+  num_dataloader_workers: 4 # number of workers for the data loader
   loader_shuffle: false # whether to shuffle the data loader
   must_include_days: null # specific days to include in the dataset
   test_percentage: 0.1 # percentage of data to use for testing

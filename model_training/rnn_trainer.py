@@ -151,7 +151,7 @@ class BrainToTextDecoder_Trainer:
 
         # Call torch.compile to speed up training EDITED COMPILATION FOR SPEED
         self.logger.info("Using torch.compile")
-        #self.model = torch.compile(self.model)
+        self.model = torch.compile(self.model)
 
         #EDITED
         #self.logger.info(f"Initialized RNN decoding model")
