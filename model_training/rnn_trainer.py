@@ -194,7 +194,8 @@ class BrainToTextDecoder_Trainer:
             seed = self.args['dataset']['seed'],
             bad_trials_dict = None,
             )
-
+        for d in train_trials:
+            print(d, len(train_trials[d]['trials']), train_trials[d]['session_path'])
         # Save dictionaries to output directory to know which trials were train vs val 
         with open(os.path.join(self.args['output_dir'], 'train_val_trials.json'), 'w') as f: 
             json.dump({'train' : train_trials, 'val': val_trials}, f)
