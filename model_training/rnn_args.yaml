@@ -82,7 +82,7 @@ dataset:
   max_seq_elements: 500 # maximum number of sequence elements (phonemes) for any trial
   days_per_batch: 4 # number of randomly-selected days to include in each batch
   seed: 1 # random seed for reproducibility
-  num_dataloader_workers: 4 # number of workers for the data loader
+  num_dataloader_workers: 0 # number of workers for the data loader
   loader_shuffle: false # whether to shuffle the data loader
   must_include_days: null # specific days to include in the dataset
   test_percentage: 0.1 # percentage of data to use for testing
