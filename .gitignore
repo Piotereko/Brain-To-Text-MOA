@@ -8,4 +8,4 @@
 # ignore ds_store files
 .DS_Store
 
-.hdf5
+*.hdf5
