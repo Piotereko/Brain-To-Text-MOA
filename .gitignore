@@ -12,3 +12,4 @@
 data/
 data/**
 hdf5_data_final/
+*.pkl
