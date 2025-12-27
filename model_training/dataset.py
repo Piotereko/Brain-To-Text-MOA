@@ -64,6 +64,12 @@ class BrainToTextDataset(Dataset):
         for d in trial_indicies:
             self.n_trials += len(trial_indicies[d]['trials'])
 
+        self.trial_indicies = {
+            d: v for d, v in self.trial_indicies.items()
+            if len(v['trials']) > 0
+        }
+        self.n_days = len(self.trial_indicies)
+
         if must_include_days is not None and len(must_include_days) > days_per_batch:
             raise ValueError(f'must_include_days must be less than or equal to days_per_batch. Received {must_include_days} and days_per_batch {days_per_batch}')
         
