@@ -55,7 +55,7 @@ weight_decay_day: 0 # weight decay for the day specific input layers
 seed: 10 # random seed for reproducibility
 grad_norm_clip_value: 10 # gradient norm clipping value
 
-batches_per_train_log: 200 # number of batches per training log
+batches_per_train_log: 20 # number of batches per training log
 batches_per_val_step: 2000 # number of batches per validation step
 
 batches_per_save: 0 # number of batches per save
