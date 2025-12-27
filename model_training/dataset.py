@@ -64,6 +64,8 @@ class BrainToTextDataset(Dataset):
         for d in trial_indicies:
             self.n_trials += len(trial_indicies[d]['trials'])
 
+        self.n_trials = sum(len(v['trials']) for v in self.trial_indicies.values())
+        
         self.trial_indicies = {
             d: v for d, v in self.trial_indicies.items()
             if len(v['trials']) > 0
