@@ -129,8 +129,6 @@ class BrainToTextDataset(Dataset):
                         # Remove features is neccessary 
                         #TEAM COLOMBIA
                         input_features = g['input_features'][:]
-                        if self.split == 'train':
-                            input_features = temporal_mask(input_features)
 
                         # Remove features is neccessary 
                         input_features = torch.from_numpy(input_features) # neural data

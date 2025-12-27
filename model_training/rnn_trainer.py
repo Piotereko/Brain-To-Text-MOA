@@ -13,7 +13,7 @@ import json
 import pickle
 
 from dataset import BrainToTextDataset, train_test_split_indicies
-from data_augmentations import gauss_smooth
+from data_augmentations import gauss_smooth, temporal_mask_gpu
 
 import torchaudio.functional as F # for edit distance
 from omegaconf import OmegaConf
@@ -21,6 +21,7 @@ from omegaconf import OmegaConf
 torch.set_float32_matmul_precision('high') # makes float32 matmuls faster on some GPUs
 torch.backends.cudnn.deterministic = True # makes training more reproducible
 torch._dynamo.config.cache_size_limit = 64
+
 
 from rnn_model import GRUDecoder
 from transformer_model import BrainToTextTransformer
@@ -566,6 +567,8 @@ class BrainToTextDecoder_Trainer:
 
                 # Apply augmentations to the data
                 features, n_time_steps = self.transform_data(features, n_time_steps, 'train')
+                if self.args['model']['type'] == 'transformer':
+                    features = temporal_mask_gpu(features, max_mask_frac=0.15)
 
                 adjusted_lens = ((n_time_steps - self.args['model']['patch_size']) / self.args['model']['patch_stride'] + 1).to(torch.int32)
 

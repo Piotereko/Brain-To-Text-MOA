@@ -39,22 +39,38 @@ def gauss_smooth(inputs, device, smooth_kernel_std=2, smooth_kernel_size=100,  p
 
 #TEAM COLOMBIA - usually neural data is noisy and incomplete so in order to simulate those conditions we apply termporal masking, which can also prevent overfitting.
 #Temporal Masking = Randomly hiding short chunks of the neural signal along the time axis during training.
-def temporal_mask(x, max_mask_frac=0.15):
-    if x.ndim != 2:
-        raise ValueError(f"Expected input shape (T, F), got {x.shape}")
+import torch
 
-    T, F = x.shape
+def temporal_mask_gpu(x, max_mask_frac=0.15):
+    """
+    GPU temporal masking for batched input.
 
-    # Sample mask length
-    mask_len = int(np.random.uniform(0.0, max_mask_frac) * T)
-    if mask_len == 0:
-        return x
+    Args:
+        x (Tensor): shape (B, T, F)
+        max_mask_frac (float): max fraction of T to mask
 
-    # Sample start index
-    start = np.random.randint(0, T - mask_len + 1)
+    Returns:
+        Tensor: masked x
+    """
+    if not x.is_cuda:
+        raise RuntimeError("temporal_mask_gpu expects CUDA tensor")
+
+    B, T, F = x.shape
+
+    # Sample mask lengths per batch element
+    mask_lens = (torch.rand(B, device=x.device) * max_mask_frac * T).long()
+
+    # Sample start indices
+    max_starts = torch.clamp(T - mask_lens, min=1)
+    starts = (torch.rand(B, device=x.device) * max_starts).long()
+
+    # Create time indices
+    time_idx = torch.arange(T, device=x.device)[None, :]  # (1, T)
+
+    # Mask condition: (B, T)
+    mask = (time_idx >= starts[:, None]) & (time_idx < (starts + mask_lens)[:, None])
 
     # Apply mask
-    x_masked = x.copy()
-    x_masked[start:start + mask_len, :] = 0.0
+    x = x.masked_fill(mask[:, :, None], 0.0)
 
-    return x_masked
+    return x
