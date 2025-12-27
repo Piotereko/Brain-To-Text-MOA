@@ -65,7 +65,7 @@ class BrainToTextDataset(Dataset):
             self.n_trials += len(trial_indicies[d]['trials'])
 
         self.n_trials = sum(len(v['trials']) for v in self.trial_indicies.values())
-        
+
         self.trial_indicies = {
             d: v for d, v in self.trial_indicies.items()
             if len(v['trials']) > 0
@@ -190,13 +190,12 @@ class BrainToTextDataset(Dataset):
             non_must_include_days = [d for d in self.trial_indicies.keys() if d not in self.must_include_days]
 
         batch_idx = 0
-        max_attempts = 1000
+        max_attempts = 3000
         attempts = 0
-        while batch_idx < self.n_batches:
+        while batch_idx < self.n_batches and attempts < max_attempts:
             batch = {}
             attempts += 1
-            if attempts > max_attempts:
-                raise RuntimeError("Failed to create batches — dataset likely empty or misconfigured")
+          
             # Which days will be used for this batch. Picked randomly without replacement
             # TODO: In the future we may want to consider sampling days in proportion to the number of trials in each day 
 
@@ -243,7 +242,16 @@ class BrainToTextDataset(Dataset):
             if len(batch) > 0:
                 batch_index[batch_idx] = batch
                 batch_idx += 1
+        if batch_idx == 0:
+            raise RuntimeError("Could not create any training batches — check dataset configuration")
 
+        if batch_idx < self.n_batches:
+            print(
+                f"[WARN] Requested {self.n_batches} batches, "
+                f"but only created {batch_idx}. Proceeding with fewer batches."
+            )
+
+        self.n_batches = batch_idx
 
         return batch_index
     
