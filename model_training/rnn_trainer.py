@@ -26,12 +26,22 @@ torch._dynamo.config.cache_size_limit = 64
 from rnn_model import GRUDecoder
 from transformer_model import BrainToTextTransformer
 
+
 class BrainToTextDecoder_Trainer:
     """
     This class will initialize and train a brain-to-text phoneme decoder
     
     Written by Nick Card and Zachery Fogg with reference to Stanford NPTL's decoding function
     """
+    def get_path(self, max_items=100):
+        base = self.args['output_dir']
+        idx = 1
+        if os.path.exists(base):
+            while os.path.exists(f"{base}_{idx}"):
+                idx=idx+1
+        
+        self.args['output_dir'] = self.args['output_dir'] + f"_{idx}"
+        self.args['checkpoint_dir'] = self.args['output_dir'] + "/checkpoint"
 
     def __init__(self, args):
         '''
@@ -57,6 +67,7 @@ class BrainToTextDecoder_Trainer:
 
         self.transform_args = self.args['dataset']['data_transforms']
 
+        self.get_path()
         # Create output directory
         if args['mode'] == 'train':
             os.makedirs(self.args['output_dir'], exist_ok=True)
