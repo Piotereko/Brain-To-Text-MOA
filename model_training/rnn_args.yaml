@@ -1,11 +1,18 @@
 model:
+  type: transformer   # rnn | transformer
+  # transformer-only
+  d_model: 256
+  nhead: 8
+  dim_feedforward: 1024
+
+  dropout: 0.1
   n_input_features: 512 # number of input features in the neural data. (2 features per electrode, 256 electrodes)
   n_units: 768 # number of units per GRU layer
   rnn_dropout: 0.4 # dropout rate for the GRU layers
   rnn_trainable: true # whether the GRU layers are trainable
   n_layers: 5 # number of GRU layers
-  patch_size: 14 # size of the input patches (14 time steps)
-  patch_stride: 4 # stride for the input patches (4 time steps)
+  patch_size: 0 # size of the input patches (14 time steps)
+  patch_stride: 1 # stride for the input patches (4 time steps)
 
   input_network:
     n_input_layers: 1 # number of input layers per network (one network for each day)
@@ -18,8 +25,8 @@ gpu_number: '1' # GPU number to use for training, formatted as a string (e.g., '
 mode: train
 use_amp: true # whether to use automatic mixed precision (AMP) for training
 
-output_dir: trained_models/baseline_rnn # directory to save the trained model and logs
-checkpoint_dir: trained_models/baseline_rnn/checkpoint # directory to save checkpoints during training
+output_dir: trained_models/transformer_v1 # directory to save the trained model and logs
+checkpoint_dir: trained_models/transformer_v1/checkpoint # directory to save checkpoints during training
 init_from_checkpoint: false # whether to initialize the model from a checkpoint
 init_checkpoint_path: None # path to the checkpoint to initialize the model from, if any
 save_best_checkpoint: true # whether to save the best checkpoint based on validation metrics

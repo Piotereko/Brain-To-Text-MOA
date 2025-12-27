@@ -23,6 +23,7 @@ torch.backends.cudnn.deterministic = True # makes training more reproducible
 torch._dynamo.config.cache_size_limit = 64
 
 from rnn_model import GRUDecoder
+from transformer_model import BrainToTextTransformer
 
 class BrainToTextDecoder_Trainer:
     """
@@ -57,11 +58,11 @@ class BrainToTextDecoder_Trainer:
 
         # Create output directory
         if args['mode'] == 'train':
-            os.makedirs(self.args['output_dir'], exist_ok=False)
+            os.makedirs(self.args['output_dir'], exist_ok=True)
 
         # Create checkpoint directory
         if args['save_best_checkpoint'] or args['save_all_val_steps'] or args['save_final_model']: 
-            os.makedirs(self.args['checkpoint_dir'], exist_ok=False)
+            os.makedirs(self.args['checkpoint_dir'], exist_ok=True)
 
         # Set up logging
         self.logger = logging.getLogger(__name__)
@@ -116,24 +117,44 @@ class BrainToTextDecoder_Trainer:
             random.seed(self.args['seed'])
             torch.manual_seed(self.args['seed'])
 
-        # Initialize the model 
-        self.model = GRUDecoder(
-            neural_dim = self.args['model']['n_input_features'],
-            n_units = self.args['model']['n_units'],
-            n_days = len(self.args['dataset']['sessions']),
-            n_classes  = self.args['dataset']['n_classes'],
-            rnn_dropout = self.args['model']['rnn_dropout'], 
-            input_dropout = self.args['model']['input_network']['input_layer_dropout'], 
-            n_layers = self.args['model']['n_layers'],
-            patch_size = self.args['model']['patch_size'],
-            patch_stride = self.args['model']['patch_stride'],
-        )
+       
+       # Initialize the model EDITED
+        if self.args['model']['type'] == 'rnn':
+            self.model = GRUDecoder(
+                neural_dim = self.args['model']['n_input_features'],
+                n_units = self.args['model']['n_units'],
+                n_days = len(self.args['dataset']['sessions']),
+                n_classes  = self.args['dataset']['n_classes'],
+                rnn_dropout = self.args['model']['rnn_dropout'], 
+                input_dropout = self.args['model']['input_network']['input_layer_dropout'], 
+                n_layers = self.args['model']['n_layers'],
+                patch_size = self.args['model']['patch_size'],
+                patch_stride = self.args['model']['patch_stride'],
+            )
+            self.logger.info("Initialized RNN decoding model")
+
+        elif self.args['model']['type'] == 'transformer':
+            self.model = BrainToTextTransformer(
+                input_dim = self.args['model']['n_input_features'],
+                vocab_size = self.args['dataset']['n_classes'],
+                d_model = self.args['model']['d_model'],
+                nhead = self.args['model']['nhead'],
+                num_layers = self.args['model']['n_layers'],
+                dim_feedforward = self.args['model']['dim_feedforward'],
+                dropout = self.args['model']['dropout'],
+            )
+            self.logger.info("Initialized Transformer decoding model")
+
+        else:
+            raise ValueError(f"Unknown model type: {self.args['model']['type']}")
 
         # Call torch.compile to speed up training
         self.logger.info("Using torch.compile")
         self.model = torch.compile(self.model)
 
-        self.logger.info(f"Initialized RNN decoding model")
+        #EDITED
+        #self.logger.info(f"Initialized RNN decoding model")
+        self.logger.info(f"Initialized {self.args['model']['type']} decoding model")
 
         self.logger.info(self.model)
 
@@ -246,11 +267,19 @@ class BrainToTextDecoder_Trainer:
             self.load_model_checkpoint(self.args['init_checkpoint_path'])
 
         # Set rnn and/or input layers to not trainable if specified 
-        for name, param in self.model.named_parameters():
-            if not self.args['model']['rnn_trainable'] and 'gru' in name:
-                param.requires_grad = False
+        # for name, param in self.model.named_parameters():
+        #     if not self.args['model']['rnn_trainable'] and 'gru' in name:
+        #         param.requires_grad = False
 
-            elif not self.args['model']['input_network']['input_trainable'] and 'day' in name:
+        #     elif not self.args['model']['input_network']['input_trainable'] and 'day' in name:
+        #         param.requires_grad = False
+        #EDITED
+        for name, param in self.model.named_parameters():
+            if self.args['model']['type'] == 'rnn':
+                if not self.args['model']['rnn_trainable'] and 'gru' in name:
+                    param.requires_grad = False
+
+            if not self.args['model']['input_network']['input_trainable'] and 'day' in name:
                 param.requires_grad = False
 
         # Send model to device 
@@ -264,6 +293,15 @@ class BrainToTextDecoder_Trainer:
 
         Day weights should have a separate learning rate
         '''
+        if self.args['model']['type'] == 'transformer':
+            return torch.optim.AdamW(
+                self.model.parameters(),
+                lr=self.args['lr_max'],
+                betas=(self.args['beta0'], self.args['beta1']),
+                eps=self.args['epsilon'],
+                weight_decay=self.args['weight_decay'],
+                fused=True
+            )
         bias_params = [p for name, p in self.model.named_parameters() if 'gru.bias' in name or 'out.bias' in name]
         day_params = [p for name, p in self.model.named_parameters() if 'day_' in name]
         other_params = [p for name, p in self.model.named_parameters() if 'day_' not in name and 'gru.bias' not in name and 'out.bias' not in name]
@@ -531,8 +569,9 @@ class BrainToTextDecoder_Trainer:
 
                 adjusted_lens = ((n_time_steps - self.args['model']['patch_size']) / self.args['model']['patch_stride'] + 1).to(torch.int32)
 
-                # Get phoneme predictions 
-                logits = self.model(features, day_indicies)
+                # Get phoneme predictions EDITED
+                #logits = self.model(features, day_indicies)
+                logits = self.model(features, day_indicies, adjusted_lens)
 
                 # Calculate CTC Loss
                 loss = self.ctc_loss(
@@ -706,7 +745,9 @@ class BrainToTextDecoder_Trainer:
 
                     adjusted_lens = ((n_time_steps - self.args['model']['patch_size']) / self.args['model']['patch_stride'] + 1).to(torch.int32)
 
-                    logits = self.model(features, day_indicies)
+                    #EDITED
+                    #logits = self.model(features, day_indicies)
+                    logits = self.model(features, day_indicies, adjusted_lens)
     
                     loss = self.ctc_loss(
                         torch.permute(logits.log_softmax(2), [1, 0, 2]),
