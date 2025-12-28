@@ -33,15 +33,16 @@ class BrainToTextDecoder_Trainer:
     
     Written by Nick Card and Zachery Fogg with reference to Stanford NPTL's decoding function
     """
-    def get_path(self, max_items=100):
-        base = self.args['output_dir']
-        idx = 1
+    def get_path(self):
+        base = "trained_models/transformer_v1"
+        idx = 0
         if os.path.exists(base):
             while os.path.exists(f"{base}_{idx}"):
-                idx=idx+1
+                idx+=1
         
-        self.args['output_dir'] = self.args['output_dir'] + f"_{idx}"
-        self.args['checkpoint_dir'] = self.args['output_dir'] + "/checkpoint"
+            self.args['output_dir'] = base + f"_{idx}"
+            self.args['checkpoint_dir'] = base + "/checkpoint"
+
 
     def __init__(self, args):
         '''
