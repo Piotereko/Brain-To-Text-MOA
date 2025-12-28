@@ -36,7 +36,7 @@ save_val_metrics: true # whether to save validation metrics during training
 early_stopping: false # whether to use early stopping based on validation metrics
 early_stopping_val_steps: 20 # number of validation steps to wait before stopping training if no improvement is seen
 
-num_training_batches: 1200 # number of training batches to run
+num_training_batches: 10000 # number of training batches to run
 lr_scheduler_type: cosine # type of learning rate scheduler to use
 lr_max: 0.005 # maximum learning rate for the main model
 lr_min: 0.0001 # minimum learning rate for the main model
