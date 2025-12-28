@@ -35,8 +35,8 @@ class BrainToTextDecoder_Trainer:
     """
     def get_path(self):
         base = "trained_models/transformer_v1"
-        idx = 0
         if os.path.exists(base):
+            idx = 1
             while os.path.exists(f"{base}_{idx}"):
                 idx+=1
         
