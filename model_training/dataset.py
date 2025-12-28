@@ -190,7 +190,7 @@ class BrainToTextDataset(Dataset):
             non_must_include_days = [d for d in self.trial_indicies.keys() if d not in self.must_include_days]
 
         batch_idx = 0
-        max_attempts = 3000
+        max_attempts = 12000
         attempts = 0
         while batch_idx < self.n_batches and attempts < max_attempts:
             batch = {}
