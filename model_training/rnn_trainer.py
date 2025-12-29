@@ -41,7 +41,7 @@ class BrainToTextDecoder_Trainer:
                 idx+=1
         
             self.args['output_dir'] = base + f"_{idx}"
-            self.args['checkpoint_dir'] = base + "/checkpoint"
+            self.args['checkpoint_dir'] =  self.args['output_dir'] + "/checkpoint"
 
 
     def __init__(self, args):
