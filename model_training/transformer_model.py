@@ -35,7 +35,7 @@ class BrainToTextTransformer(nn.Module):
 
         self.classifier = nn.Linear(d_model, vocab_size)
 
-    def forward(self, x, day_indicies=None, lengths=None):
+    def forward(self, x, day_indicies=None, states=None, return_state=False, lengths=None):
         """
         x: (B, T, C)
         day_indicies: unused, kept for trainer compatibility
@@ -53,4 +53,8 @@ class BrainToTextTransformer(nn.Module):
         x = self.encoder(x, src_key_padding_mask=mask)
         logits = self.classifier(x)
 
-        return logits
+        if return_state:
+            return logits, None
+        else:
+            return logits
+

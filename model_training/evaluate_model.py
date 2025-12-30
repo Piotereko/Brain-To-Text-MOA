@@ -9,7 +9,7 @@ from tqdm import tqdm
 import editdistance
 import argparse
 
-from rnn_model import GRUDecoder
+from transformer_model import BrainToTextTransformer
 from evaluate_model_helpers import *
 
 # argument parser for command line arguments
@@ -56,7 +56,7 @@ else:
     device = torch.device('cpu')
 
 # define model
-model = GRUDecoder(
+model = BrainToTextTransformer(
     neural_dim = model_args['model']['n_input_features'],
     n_units = model_args['model']['n_units'], 
     n_days = len(model_args['dataset']['sessions']),
