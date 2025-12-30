@@ -2,7 +2,7 @@ import os
 import torch
 import numpy as np
 import pandas as pd
-import redis
+#import redis
 from omegaconf import OmegaConf
 import time
 from tqdm import tqdm
@@ -57,16 +57,26 @@ else:
 
 # define model
 model = BrainToTextTransformer(
-    neural_dim = model_args['model']['n_input_features'],
-    n_units = model_args['model']['n_units'], 
-    n_days = len(model_args['dataset']['sessions']),
-    n_classes = model_args['dataset']['n_classes'],
-    rnn_dropout = model_args['model']['rnn_dropout'],
-    input_dropout = model_args['model']['input_network']['input_layer_dropout'],
-    n_layers = model_args['model']['n_layers'],
-    patch_size = model_args['model']['patch_size'],
-    patch_stride = model_args['model']['patch_stride'],
+    input_dim = model_args['model']['n_input_features'],
+    vocab_size = model_args['dataset']['n_classes'],
+    d_model = model_args['model']['d_model'],
+    nhead = model_args['model']['n_heads'],
+    num_layers = model_args['model']['num_layers'],
+    dim_feedforward = model_args['model']['dim_feedforward'],
+    dropout = model_args['model']['dropout'],
 )
+
+# model = GRUDecoder(
+#     neural_dim = model_args['model']['n_input_features'],
+#     n_units = model_args['model']['n_units'], 
+#     n_days = len(model_args['dataset']['sessions']),
+#     n_classes = model_args['dataset']['n_classes'],
+#     rnn_dropout = model_args['model']['rnn_dropout'],
+#     input_dropout = model_args['model']['input_network']['input_layer_dropout'],
+#     n_layers = model_args['model']['n_layers'],
+#     patch_size = model_args['model']['patch_size'],
+#     patch_stride = model_args['model']['patch_stride'],
+# )
 
 # load model weights
 checkpoint = torch.load(os.path.join(model_path, 'checkpoint/best_checkpoint'), weights_only=False, map_location=device)
