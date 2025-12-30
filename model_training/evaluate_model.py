@@ -108,7 +108,8 @@ for session in model_args['dataset']['sessions']:
 print(f'Total number of {eval_type} trials: {total_test_trials}')
 print()
 
-
+print("\n✅ Finished acoustic model (phoneme) decoding.")
+print(f"Total trials decoded: {total_test_trials}\n")
 # put neural data through the pretrained model to get phoneme predictions (logits)
 with tqdm(total=total_test_trials, desc='Predicting phoneme sequences', unit='trial') as pbar:
     for session, data in test_data.items():
@@ -256,8 +257,10 @@ with tqdm(total=total_test_trials, desc='Running remote language model', unit='t
 
             # update progress bar
             pbar.update(1)
+            if trial % 10 == 0:
+                print(f"⏳ LM progress: {trial}/{total_test_trials}")
 pbar.close()
-
+print("\n🎉 Language model inference completed for all trials.")
 
 # if using the validation set, lets calculate the aggregate word error rate (WER)
 if eval_type == 'val':
