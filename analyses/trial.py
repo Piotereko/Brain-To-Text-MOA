@@ -27,9 +27,10 @@ def run_command(command, prefix, color=""):
 
 # Define your commands
 cmd1 = (
+    "cd /content/Brain-To-Text-MOA && "
     "alias conda='~/miniconda3/bin/conda' && "
     "source ~/miniconda3/bin/activate && "
-    "bash setup_lm.sh && "
+    "(conda activate b2txt25_lm || bash setup_lm.sh) && "
     "conda activate b2txt25_lm && "
     "python language_model/language-model-standalone.py "
     "--lm_path language_model/pretrained_language_models/openwebtext_1gram_lm_sil "
