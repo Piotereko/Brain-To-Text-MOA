@@ -60,8 +60,8 @@ model = BrainToTextTransformer(
     input_dim = model_args['model']['n_input_features'],
     vocab_size = model_args['dataset']['n_classes'],
     d_model = model_args['model']['d_model'],
-    nhead = model_args['model']['n_heads'],
-    num_layers = model_args['model']['num_layers'],
+    nhead = model_args['model']['nheads'],
+    num_layers = model_args['model']['n_layers'],
     dim_feedforward = model_args['model']['dim_feedforward'],
     dropout = model_args['model']['dropout'],
 )
