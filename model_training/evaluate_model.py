@@ -23,7 +23,7 @@ parser.add_argument('--eval_type', type=str, default='test', choices=['val', 'te
                          'If "test", ground truth is not available.')
 parser.add_argument('--csv_path', type=str, default='../data/t15_copyTaskData_description.csv',
                     help='Path to the CSV file with metadata about the dataset (relative to the current working directory).')
-parser.add_argument('--gpu_number', type=int, default=1,
+parser.add_argument('--gpu_number', type=int, default=0,
                     help='GPU number to use for RNN model inference. Set to -1 to use CPU.')
 args = parser.parse_args()
 
@@ -307,12 +307,13 @@ if eval_type == 'val':
 # write predicted sentences to a csv file. put a timestamp in the filename (YYYYMMDD_HHMMSS)
 # KASIA had to change the path so that it works on Kaggle server
 timestamp = time.strftime("%Y%m%d_%H%M%S")
-#output_file = os.path.join(model_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
-if os.path.exists('/kaggle/working'):
-    output_path = '/kaggle/working'
-else:
-    output_path = '.'
-output_file = os.path.join(output_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
+output_path = model_path
+output_file = os.path.join(model_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
+# if os.path.exists('/kaggle/working'):
+#     output_path = '/kaggle/working'
+# else:
+#     output_path = '.'
+#output_file = os.path.join(output_path, f'baseline_rnn_{eval_type}_predicted_sentences_{timestamp}.csv')
 
 ids = [i for i in range(len(lm_results['pred_sentence']))]
 df_out = pd.DataFrame({'id': ids, 'text': lm_results['pred_sentence']})
