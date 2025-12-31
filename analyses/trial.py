@@ -27,7 +27,7 @@ def run_command(command, prefix, color=""):
 
 # Define your commands
 cmd1 = (
-    "cd /content/Brain-To-Text-MOA && "
+    "cd /Brain-To-Text-MOA && "
     "alias conda='~/miniconda3/bin/conda' && "
     "source ~/miniconda3/bin/activate && "
     "(conda activate b2txt25_lm || bash setup_lm.sh) && "
@@ -43,14 +43,14 @@ cmd1 = (
 )
 cmd2 = (
     "sleep 10 && "
-    "cd /content/Brain-To-Text-MOA && "
+    "cd /Brain-To-Text-MOA && "
     "alias conda='~/miniconda3/bin/conda' && "
     "source ~/miniconda3/bin/activate && "
     "(conda activate b2txt25 || bash setup.sh) && "
     "conda activate b2txt25 && "
     "python model_training/evaluate_model.py "
     "--gpu_number 0 "
-    "--model_path /content/drive/MyDrive/Brain-To-Text-MOA_Backups/transformer_v1 "
+    "--model_path /transformer_v1 "
     "--eval_type val"
 )
 
